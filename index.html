@@ -531,6 +531,48 @@
     display: block;
     line-height: 1.5;
   }
+
+  /* Gallery */
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .gallery-item {
+    position: relative;
+    cursor: pointer;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+    aspect-ratio: 1;
+  }
+  .gallery-item:hover {
+    border-color: var(--accent);
+    transform: scale(1.03);
+  }
+  .gallery-item.active {
+    border-color: var(--accent);
+    box-shadow: 0 0 12px rgba(0,204,102,0.4);
+  }
+  .gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .gallery-item .gallery-label {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    padding: 4px 6px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
 </style>
 </head>
 <body>
@@ -701,6 +743,38 @@
 
       <button class="btn-generate" style="margin-top:4px;" onclick="loadPhoto()">👁 Zobraziť náhľad</button>
 
+      <!-- Gallery -->
+      <div class="field" style="margin-top:16px;">
+        <label>Ukážkové fotky — kliknite pre načítanie</label>
+        <div class="gallery-grid">
+          <div class="gallery-item" onclick="pickGallery(this, 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800')">
+            <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200" alt="Hory">
+            <div class="gallery-label">Hory</div>
+          </div>
+          <div class="gallery-item" onclick="pickGallery(this, 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800')">
+            <img src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=200" alt="Mesto">
+            <div class="gallery-label">Mesto</div>
+          </div>
+          <div class="gallery-item" onclick="pickGallery(this, 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800')">
+            <img src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=200" alt="Les">
+            <div class="gallery-label">Les</div>
+          </div>
+          <div class="gallery-item" onclick="pickGallery(this, 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800')">
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200" alt="Portrét">
+            <div class="gallery-label">Portrét</div>
+          </div>
+          <div class="gallery-item" onclick="pickGallery(this, 'https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=800')">
+            <img src="https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=200" alt="Zviera">
+            <div class="gallery-label">Zviera</div>
+          </div>
+          <div class="gallery-item" onclick="pickGallery(this, 'https://images.unsplash.com/photo-1490750967868-88df5691cc5f?w=800')">
+            <img src="https://images.unsplash.com/photo-1490750967868-88df5691cc5f?w=200" alt="Kvety">
+            <div class="gallery-label">Kvety</div>
+          </div>
+        </div>
+        <small class="hint">Zdroj: Unsplash.com — voľne dostupné fotografie</small>
+      </div>
+
       <!-- Preview -->
       <div id="photo-preview-wrap" style="margin-top:16px; display:none;">
         <img id="photo-preview-img" src="" alt="preview" style="width:100%; border-radius:6px; display:block;">
@@ -718,6 +792,19 @@
 <div id="qr-hidden" style="position:absolute;left:-9999px;top:-9999px;"></div>
 
 <script>
+  // ---- Gallery pick ----
+  function pickGallery(el, url) {
+    document.querySelectorAll('.gallery-item').forEach(i => i.classList.remove('active'));
+    el.classList.add('active');
+    // Switch to URL mode and fill in the URL
+    switchSource('url');
+    document.getElementById('photo-url').value = url;
+    // Auto load preview
+    showPhotoPreview(url);
+    // Switch to photo tab if not already
+    switchTab('photo');
+  }
+
   // ---- Theme toggle ----
   function toggleTheme() {
     const isLight = document.documentElement.classList.toggle('light');
