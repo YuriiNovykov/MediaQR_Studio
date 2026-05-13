@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MediaQR Studio</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --panel: #1a1a26;
+    --border: #2a2a3e;
+    --accent: #00cc66;
+    --accent2: #ff3366;
+    --accent3: #3366ff;
+    --text: #e8e8f0;
+    --muted: #6666aa;
+    --grid-color: rgba(0,255,136,0.03);
+  }
+
+  :root.light {
+    --bg: #f0f4f0;
+    --surface: #ffffff;
+    --panel: #ffffff;
+    --border: #d0ddd5;
+    --accent: #00994d;
+    --accent2: #cc2255;
+    --accent3: #2244cc;
+    --text: #111820;
+    --muted: #7a9a88;
+    --grid-color: rgba(0,150,80,0.06);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* Smooth theme transition */
+  body, .panel, .back-link, .tag, input, select, .dropzone, .preset-btn, .btn-download {
+    transition: background 0.35s ease, color 0.35s ease, border-color 0.35s ease;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--grid-color) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+    transition: background-image 0.35s;
+  }
+
+  .back-link {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 100;
+    color: var(--muted);
+    text-decoration: none;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--surface);
+    transition: all 0.2s;
+    letter-spacing: 0.05em;
+  }
+  .back-link:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* Theme toggle button */
+  .theme-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .theme-toggle:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  /* Light theme panel shadow */
+  :root.light .panel {
+    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+  }
+  :root.light .btn-generate {
+    box-shadow: 0 4px 16px rgba(0,150,80,0.25);
+  }
+  :root.light h1 span.qr { color: var(--accent); }
+  :root.light .tag { color: var(--accent); border-color: var(--accent); }
+
+  header {
+    position: relative;
+    z-index: 1;
+    padding: 80px 40px 40px;
+    text-align: center;
+  }
+
+  .tag {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 4px 12px;
+    border-radius: 2px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    margin-bottom: 12px;
+  }
+
+  h1 span.qr { color: var(--accent); }
+  h1 span.logo { color: var(--accent2); }
+
+  .subtitle {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    width: 100%;
+  }
+
+  @media (max-width: 700px) {
+    main { grid-template-columns: 1fr; }
+    header { padding: 70px 20px 30px; }
+  }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 28px;
+  }
+
+  .panel-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .panel-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .field { margin-bottom: 18px; }
+
+  label {
+    display: block;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+
+  input[type="text"],
+  input[type="url"],
+  input[type="range"],
+  select {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 4px;
+    padding: 10px 14px;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input[type="text"]:focus,
+  input[type="url"]:focus,
+  select:focus { border-color: var(--accent); }
+
+  input[type="color"] {
+    width: 100%;
+    height: 42px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--surface);
+    cursor: pointer;
+    padding: 4px;
+  }
+
+  input[type="range"] {
+    padding: 0;
+    height: 4px;
+    accent-color: var(--accent);
+    cursor: pointer;
+    margin-top: 10px;
+  }
+
+  .range-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .range-val {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    min-width: 36px;
+    text-align: right;
+  }
+
+  .color-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  /* Drop zone */
+  .dropzone {
+    border: 2px dashed var(--border);
+    border-radius: 6px;
+    padding: 28px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s;
+    background: var(--surface);
+    position: relative;
+    overflow: hidden;
+  }
+  .dropzone:hover, .dropzone.drag-over {
+    border-color: var(--accent);
+    background: rgba(0,255,136,0.04);
+  }
+  .dropzone input { display: none; }
+  .dropzone-icon { font-size: 2rem; margin-bottom: 8px; }
+  .dropzone-text {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .dropzone-preview {
+    display: none;
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin: 0 auto 8px;
+    border: 2px solid var(--accent);
+  }
+
+  /* Generate button */
+  .btn-generate {
+    width: 100%;
+    padding: 16px;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 4px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 15px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+  .btn-generate:hover { background: #00ffaa; transform: translateY(-1px); }
+  .btn-generate:active { transform: translateY(0); }
+
+  /* Output panel */
+  .output-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 340px;
+  }
+
+  .qr-wrapper {
+    position: relative;
+    display: inline-block;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    padding: 16px;
+    box-shadow: 0 0 40px rgba(0,255,136,0.08);
+  }
+
+  #qr-canvas-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #qr-canvas-container canvas,
+  #qr-canvas-container img {
+    display: block;
+  }
+
+  .placeholder-box {
+    width: 240px;
+    height: 240px;
+    border: 2px dashed var(--border);
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    text-align: center;
+    gap: 12px;
+  }
+  .placeholder-box .ph-icon { font-size: 3rem; opacity: 0.3; }
+
+  .btn-download {
+    margin-top: 20px;
+    padding: 12px 28px;
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 4px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: none;
+  }
+  .btn-download:hover { background: rgba(0,255,136,0.1); }
+
+  .status-msg {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    margin-top: 12px;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+    min-height: 18px;
+    text-align: center;
+  }
+
+  /* Decorative corner */
+  .corner-deco {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    opacity: 0.4;
+    z-index: 0;
+  }
+
+  select option { background: var(--panel); }
+
+  .presets-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .preset-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+  .preset-btn:hover {
+    border-color: var(--accent);
+    color: var(--text);
+    transform: translateY(-1px);
+  }
+  .preset-btn.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(0,255,136,0.06);
+    box-shadow: 0 0 10px rgba(0,255,136,0.1);
+  }
+  .preset-swatch {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: block;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  }
+
+  /* Tabs */
+  .tabs-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .tab-btn {
+    padding: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tab-btn.active {
+    background: rgba(0,204,102,0.1);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .tab-btn:hover:not(.active) { border-color: var(--accent); color: var(--text); }
+
+  /* Source toggle */
+  .source-toggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .src-btn {
+    padding: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .src-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(0,204,102,0.06); }
+  .src-btn:hover:not(.active) { border-color: var(--accent); color: var(--text); }
+
+  /* Filter grid */
+  .filter-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+  .filter-btn {
+    padding: 8px 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .filter-btn:hover { border-color: var(--accent); color: var(--text); }
+  .filter-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(0,204,102,0.08); }
+
+  .hint {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 6px;
+    display: block;
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+
+<a class="back-link" href="/">← Späť</a>
+
+<button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Prepnúť tému">
+  <span id="theme-icon">🌙</span>
+  <span id="theme-label">Nočná téma</span>
+</button>
+
+<header>
+  <div class="tag">Multimediálna webová služba</div>
+  <h1><span class="qr">Media</span><span class="logo">QR</span> Studio</h1>
+  <p class="subtitle">QR generátor + foto filtre // B-MSAP 2026</p>
+</header>
+
+<main>
+  <!-- LEFT: Controls -->
+  <div class="panel">
+    <div class="panel-title">01 — Vstupné parametre</div>
+
+    <div class="field">
+      <label>Text alebo URL adresa</label>
+      <input type="text" id="qr-text" placeholder="https://example.com" value="https://example.com">
+    </div>
+
+    <div class="field">
+      <label>Veľkosť QR kódu (px)</label>
+      <div class="range-row">
+        <input type="range" id="qr-size" min="200" max="400" value="280" step="20">
+        <span class="range-val" id="size-val">280</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Úroveň opravy chýb</label>
+      <select id="qr-ecl">
+        <option value="H" selected>H — Vysoká (30%) — odporúčané pre logo</option>
+        <option value="Q">Q — Stredná (25%)</option>
+        <option value="M">M — Nízka (15%)</option>
+        <option value="L">L — Minimálna (7%)</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Štýlové predvoľby</label>
+      <div class="presets-grid">
+        <button class="preset-btn active" onclick="applyPreset(this,'#000000','#ffffff')" title="Klasický">
+          <span class="preset-swatch" style="background:#000;border:2px solid #fff;"></span>
+          <span>Klasický</span>
+        </button>
+        <button class="preset-btn" onclick="applyPreset(this,'#ffffff','#000000')" title="Invertovaný">
+          <span class="preset-swatch" style="background:#fff;border:2px solid #333;"></span>
+          <span>Invertovaný</span>
+        </button>
+        <button class="preset-btn" onclick="applyPreset(this,'#00ff88','#0a0a0f')" title="Neon">
+          <span class="preset-swatch" style="background:#00ff88;border:2px solid #0a0a0f;"></span>
+          <span>Neon</span>
+        </button>
+        <button class="preset-btn" onclick="applyPreset(this,'#1a1aff','#e8f0ff')" title="Modrý">
+          <span class="preset-swatch" style="background:#1a1aff;border:2px solid #e8f0ff;"></span>
+          <span>Modrý</span>
+        </button>
+        <button class="preset-btn" onclick="applyPreset(this,'#ff3366','#fff0f3')" title="Ružový">
+          <span class="preset-swatch" style="background:#ff3366;border:2px solid #fff0f3;"></span>
+          <span>Ružový</span>
+        </button>
+        <button class="preset-btn" onclick="applyPreset(this,'#7c3aed','#f5f0ff')" title="Fialový">
+          <span class="preset-swatch" style="background:#7c3aed;border:2px solid #f5f0ff;"></span>
+          <span>Fialový</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="field color-row">
+      <div>
+        <label>Farba QR</label>
+        <input type="color" id="qr-dark" value="#000000">
+      </div>
+      <div>
+        <label>Farba pozadia</label>
+        <input type="color" id="qr-light" value="#ffffff">
+      </div>
+    </div>
+
+    <div class="panel-title" style="margin-top:24px;">02 — Logo (voliteľné)</div>
+
+    <div class="field">
+      <div class="dropzone" id="dropzone">
+        <input type="file" id="logo-input" accept="image/*">
+        <img class="dropzone-preview" id="logo-preview" src="" alt="preview">
+        <div class="dropzone-icon">🖼️</div>
+        <div class="dropzone-text">Presuňte sem logo alebo<br><strong>kliknite pre výber súboru</strong><br><small>PNG s priehľadnosťou funguje najlepšie</small></div>
+      </div>
+    </div>
+
+    <div class="field" id="logo-size-field" style="display:none;">
+      <label>Veľkosť loga (% QR kódu)</label>
+      <div class="range-row">
+        <input type="range" id="logo-size" min="10" max="35" value="22" step="1">
+        <span class="range-val" id="logo-size-val">22%</span>
+      </div>
+    </div>
+
+    <button class="btn-generate" onclick="generateQR()">⚡ Generovať QR kód</button>
+  </div>
+
+  <!-- RIGHT: Output -->
+  <div class="panel output-panel">
+    <!-- Tabs -->
+    <div class="tabs-row">
+      <button class="tab-btn active" onclick="switchTab('qr')">📱 QR kód</button>
+      <button class="tab-btn" onclick="switchTab('photo')">🖼 Foto + Filter</button>
+    </div>
+
+    <!-- TAB: QR output -->
+    <div id="tab-qr">
+      <div id="qr-output">
+        <div class="placeholder-box">
+          <span class="ph-icon">⬛</span>
+          <span>QR kód sa zobrazí<br>po generovaní</span>
+        </div>
+      </div>
+      <div class="status-msg" id="status-msg"></div>
+      <button class="btn-download" id="btn-download" onclick="downloadQR()">⬇ Stiahnuť PNG</button>
+    </div>
+
+    <!-- TAB: Photo + Filter -->
+    <div id="tab-photo" style="display:none;">
+      <div class="panel-title" style="margin-top:0;">Zdroj fotky</div>
+
+      <!-- Source toggle -->
+      <div class="source-toggle">
+        <button class="src-btn active" id="src-url-btn" onclick="switchSource('url')">🔗 URL odkaz</button>
+        <button class="src-btn" id="src-file-btn" onclick="switchSource('file')">📁 Súbor</button>
+      </div>
+
+      <!-- URL input -->
+      <div id="source-url" class="field">
+        <input type="text" id="photo-url" placeholder="https://..." value="https://s0.rbk.ru/v6_top_pics/resized/960xH/media/img/5/46/756038770746465.jpg">
+        <small class="hint">Vložte priamu URL adresu obrázka</small>
+      </div>
+
+      <!-- File input -->
+      <div id="source-file" class="field" style="display:none;">
+        <div class="dropzone" id="photo-dropzone" onclick="document.getElementById('photo-file-input').click()">
+          <input type="file" id="photo-file-input" accept="image/*" style="display:none">
+          <div class="dropzone-icon">📷</div>
+          <div class="dropzone-text">Kliknite alebo presuňte foto</div>
+        </div>
+      </div>
+
+      <!-- Filter selector -->
+      <div class="field">
+        <label>Filtrovať obrázok</label>
+        <div class="filter-grid">
+          <button class="filter-btn active" onclick="applyFilter(this,'none')" data-filter="none">Originál</button>
+          <button class="filter-btn" onclick="applyFilter(this,'grayscale(100%)')" data-filter="grayscale">Čiernobiely</button>
+          <button class="filter-btn" onclick="applyFilter(this,'sepia(100%)')" data-filter="sepia">Sépia</button>
+          <button class="filter-btn" onclick="applyFilter(this,'invert(100%)')" data-filter="invert">Negatív</button>
+          <button class="filter-btn" onclick="applyFilter(this,'hue-rotate(180deg) saturate(2)')" data-filter="hue">Neon</button>
+          <button class="filter-btn" onclick="applyFilter(this,'contrast(1.5) brightness(1.1) saturate(1.4)')" data-filter="vivid">Živý</button>
+          <button class="filter-btn" onclick="applyFilter(this,'blur(3px)')" data-filter="blur">Blur</button>
+          <button class="filter-btn" onclick="applyFilter(this,'brightness(1.4) contrast(0.8) saturate(0.6)')" data-filter="fade">Fade</button>
+        </div>
+      </div>
+
+      <button class="btn-generate" style="margin-top:4px;" onclick="loadPhoto()">👁 Zobraziť náhľad</button>
+
+      <!-- Preview -->
+      <div id="photo-preview-wrap" style="margin-top:16px; display:none;">
+        <img id="photo-preview-img" src="" alt="preview" style="width:100%; border-radius:6px; display:block;">
+        <button class="btn-download" id="btn-download-photo" onclick="downloadFilteredPhoto()" style="display:block; margin-top:10px; width:100%;">⬇ Stiahnuť foto s filtrom</button>
+        <small class="hint" id="download-hint" style="margin-top:6px;"></small>
+      </div>
+      <div class="hint" style="margin-top:10px;">💡 QR kód v ľavom paneli naskenuje URL — otvorí originálnu fotku</div>
+    </div>
+  </div>
+</main>
+
+<div class="corner-deco">MEDIAQR STUDIO v1.0</div>
+
+<!-- Hidden QR render target -->
+<div id="qr-hidden" style="position:absolute;left:-9999px;top:-9999px;"></div>
+
+<script>
+  // ---- Theme toggle ----
+  function toggleTheme() {
+    const isLight = document.documentElement.classList.toggle('light');
+    document.getElementById('theme-icon').textContent  = isLight ? '☀️' : '🌙';
+    document.getElementById('theme-label').textContent = isLight ? 'Denná téma' : 'Nočná téma';
+  }
+
+  // ---- Tabs ----
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (i===0) === (tab==='qr')));
+    document.getElementById('tab-qr').style.display    = tab === 'qr'    ? '' : 'none';
+    document.getElementById('tab-photo').style.display = tab === 'photo' ? '' : 'none';
+  }
+
+  // ---- Photo source toggle ----
+  function switchSource(src) {
+    document.getElementById('src-url-btn').classList.toggle('active', src === 'url');
+    document.getElementById('src-file-btn').classList.toggle('active', src === 'file');
+    document.getElementById('source-url').style.display  = src === 'url'  ? '' : 'none';
+    document.getElementById('source-file').style.display = src === 'file' ? '' : 'none';
+  }
+
+  // Photo file drag & drop
+  document.getElementById('photo-dropzone').addEventListener('dragover', e => e.preventDefault());
+  document.getElementById('photo-dropzone').addEventListener('drop', e => {
+    e.preventDefault();
+    const f = e.dataTransfer.files[0];
+    if (f && f.type.startsWith('image/')) loadPhotoFromFile(f);
+  });
+  document.getElementById('photo-file-input').addEventListener('change', e => {
+    if (e.target.files[0]) loadPhotoFromFile(e.target.files[0]);
+  });
+
+  function loadPhotoFromFile(file) {
+    const reader = new FileReader();
+    reader.onload = ev => showPhotoPreview(ev.target.result);
+    reader.readAsDataURL(file);
+  }
+
+  // ---- Filter ----
+  let currentFilter = 'none';
+  function applyFilter(btn, filter) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = filter;
+    const img = document.getElementById('photo-preview-img');
+    if (img.src) img.style.filter = filter;
+  }
+
+  // ---- Load photo ----
+  function loadPhoto() {
+    const src = document.getElementById('source-url').style.display !== 'none'
+      ? document.getElementById('photo-url').value.trim()
+      : null;
+    if (src) showPhotoPreview(src);
+  }
+
+  function showPhotoPreview(src) {
+    const wrap = document.getElementById('photo-preview-wrap');
+    const img  = document.getElementById('photo-preview-img');
+    const hint = document.getElementById('download-hint');
+    img.crossOrigin = 'anonymous'; // try CORS
+    img.src = src;
+    img.style.filter = currentFilter;
+    img.onload = () => {
+      wrap.style.display = '';
+      // Check if we can draw to canvas (local file = yes, URL = maybe)
+      const isLocal = src.startsWith('data:');
+      hint.textContent = isLocal
+        ? '✓ Súbor z počítača — stiahnutie s filtrom funguje'
+        : '⚠ URL obrázok — stiahnutie závisí od CORS servera';
+      hint.style.color = isLocal ? 'var(--accent)' : 'var(--muted)';
+    };
+    img.onerror = () => {
+      wrap.style.display = '';
+      img.alt = '⚠ Obrázok sa nedá načítať. Skúste nahrať súbor z počítača.';
+    };
+    if (src.startsWith('http')) {
+      document.getElementById('qr-text').value = src;
+    }
+  }
+
+  // ---- Download filtered photo via Canvas ----
+  function downloadFilteredPhoto() {
+    const img = document.getElementById('photo-preview-img');
+    if (!img.src) return;
+
+    const canvas = document.createElement('canvas');
+    canvas.width  = img.naturalWidth  || img.width;
+    canvas.height = img.naturalHeight || img.height;
+    const ctx = canvas.getContext('2d');
+
+    // Apply CSS filter via canvas filter property
+    if (currentFilter !== 'none') ctx.filter = currentFilter;
+
+    try {
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      const link = document.createElement('a');
+      link.download = 'foto-filter.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch(e) {
+      // CORS blocked
+      const hint = document.getElementById('download-hint');
+      hint.textContent = '⚠ Stiahnutie zlyhalo — CORS obmedzenie. Nahrať súbor z počítača funguje vždy.';
+      hint.style.color = '#ff3366';
+    }
+  }
+
+  // ---- Style presets ----
+  function applyPreset(btn, dark, light) {
+    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('qr-dark').value = dark;
+    document.getElementById('qr-light').value = light;
+  }
+
+  // ---- Range value display ----
+  document.getElementById('qr-size').addEventListener('input', function() {
+    document.getElementById('size-val').textContent = this.value;
+  });
+  document.getElementById('logo-size').addEventListener('input', function() {
+    document.getElementById('logo-size-val').textContent = this.value + '%';
+  });
+
+  // ---- Drop zone ----
+  const dropzone = document.getElementById('dropzone');
+  const logoInput = document.getElementById('logo-input');
+  const logoPreview = document.getElementById('logo-preview');
+  let logoDataURL = null;
+
+  dropzone.addEventListener('click', () => logoInput.click());
+  dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag-over'); });
+  dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
+  dropzone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropzone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) handleLogoFile(file);
+  });
+  logoInput.addEventListener('change', () => {
+    if (logoInput.files[0]) handleLogoFile(logoInput.files[0]);
+  });
+
+  function handleLogoFile(file) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      logoDataURL = e.target.result;
+      logoPreview.src = logoDataURL;
+      logoPreview.style.display = 'block';
+      dropzone.querySelector('.dropzone-icon').style.display = 'none';
+      document.getElementById('logo-size-field').style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // ---- QR Generation ----
+  let finalCanvas = null;
+
+  function generateQR() {
+    const text = document.getElementById('qr-text').value.trim();
+    if (!text) {
+      setStatus('⚠ Zadajte text alebo URL!', '#ff3366');
+      return;
+    }
+
+    const size = parseInt(document.getElementById('qr-size').value);
+    const ecl = document.getElementById('qr-ecl').value;
+    const darkColor = document.getElementById('qr-dark').value;
+    const lightColor = document.getElementById('qr-light').value;
+
+    setStatus('Generujem...', '#00ff88');
+
+    // Clear hidden div
+    const hidden = document.getElementById('qr-hidden');
+    hidden.innerHTML = '';
+
+    // Generate QR into hidden container
+    const qr = new QRCode(hidden, {
+      text: text,
+      width: size,
+      height: size,
+      colorDark: darkColor,
+      colorLight: lightColor,
+      correctLevel: QRCode.CorrectLevel[ecl]
+    });
+
+    setTimeout(() => {
+      const qrImg = hidden.querySelector('img') || hidden.querySelector('canvas');
+      if (!qrImg) { setStatus('Chyba generovania!', '#ff3366'); return; }
+
+      // Draw to final canvas
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+
+      const baseImg = new Image();
+      const src = qrImg.tagName === 'CANVAS' ? qrImg.toDataURL() : qrImg.src;
+
+      baseImg.onload = () => {
+        ctx.drawImage(baseImg, 0, 0, size, size);
+
+        if (logoDataURL) {
+          const logoPercent = parseInt(document.getElementById('logo-size').value) / 100;
+          const logoSize = size * logoPercent;
+          const logoX = (size - logoSize) / 2;
+          const logoY = (size - logoSize) / 2;
+          const padding = logoSize * 0.12;
+
+          const logoImg = new Image();
+          logoImg.onload = () => {
+            // White circle background
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(size / 2, size / 2, logoSize / 2 + padding, 0, Math.PI * 2);
+            ctx.fillStyle = lightColor;
+            ctx.fill();
+            ctx.restore();
+
+            // Draw logo
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(size / 2, size / 2, logoSize / 2, 0, Math.PI * 2);
+            ctx.clip();
+            ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
+            ctx.restore();
+
+            finalCanvas = canvas;
+            showOutput(canvas);
+            setStatus('✓ QR kód vygenerovaný!', '#00ff88');
+          };
+          logoImg.src = logoDataURL;
+        } else {
+          finalCanvas = canvas;
+          showOutput(canvas);
+          setStatus('✓ QR kód vygenerovaný!', '#00ff88');
+        }
+      };
+      baseImg.src = src;
+    }, 150);
+  }
+
+  function showOutput(canvas) {
+    const out = document.getElementById('qr-output');
+    out.innerHTML = '';
+    const wrapper = document.createElement('div');
+    wrapper.className = 'qr-wrapper';
+    const container = document.createElement('div');
+    container.id = 'qr-canvas-container';
+    container.appendChild(canvas);
+    wrapper.appendChild(container);
+    out.appendChild(wrapper);
+    document.getElementById('btn-download').style.display = 'inline-block';
+  }
+
+  function downloadQR() {
+    if (!finalCanvas) return;
+    const link = document.createElement('a');
+    link.download = 'qr-logo.png';
+    link.href = finalCanvas.toDataURL('image/png');
+    link.click();
+  }
+
+  function setStatus(msg, color) {
+    const el = document.getElementById('status-msg');
+    el.textContent = msg;
+    el.style.color = color || '#00ff88';
+  }
+</script>
+</body>
+</html>
