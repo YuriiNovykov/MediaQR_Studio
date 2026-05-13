@@ -324,13 +324,17 @@
   .btn-generate:hover { background: #00ffaa; transform: translateY(-1px); }
   .btn-generate:active { transform: translateY(0); }
 
-  /* Output panel */
-  .output-panel {
+  #tab-qr {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 340px;
+    padding: 20px 0;
+  }
+
+  .output-panel {
+    display: flex;
+    flex-direction: column;
   }
 
   .qr-wrapper {
@@ -535,7 +539,7 @@
   /* Gallery */
   .gallery-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 8px;
     margin-top: 4px;
   }
@@ -572,6 +576,207 @@
     padding: 4px 6px;
     letter-spacing: 0.05em;
     text-transform: uppercase;
+  }
+
+  /* Transform panel */
+  .transform-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px;
+    margin-top: 12px;
+  }
+  .transform-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  /* Photo tab banner */
+  .photo-tab-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(135deg, rgba(0,204,102,0.08) 0%, rgba(0,204,102,0.02) 100%);
+    border: 1px solid rgba(0,204,102,0.2);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+  }
+  .photo-tab-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 3px 8px;
+    border-radius: 2px;
+    display: inline-block;
+    margin-bottom: 8px;
+  }
+  .photo-tab-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 20px;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .photo-tab-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+  .photo-tab-icons {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 20px;
+    opacity: 0.4;
+  }
+
+  /* Guide steps */
+  .guide-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .guide-step {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    transition: border-color 0.2s;
+  }
+  .guide-step:hover { border-color: var(--accent); }
+  .guide-num {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: rgba(0,204,102,0.1);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .guide-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text);
+    letter-spacing: 0.05em;
+    margin-bottom: 3px;
+  }
+  .guide-desc {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.03em;
+  }
+
+  /* Filter preview grid */
+  .filter-preview-wrap {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+  .filter-preview-item {
+    position: relative;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    aspect-ratio: 1;
+    pointer-events: none;
+    cursor: default;
+  }
+  .filter-preview-item.active {
+    border-color: var(--accent);
+    box-shadow: 0 0 10px rgba(0,204,102,0.3);
+  }
+  .filter-preview-item img {
+    width: 100%; height: 100%;
+    object-fit: cover; display: block;
+  }
+  .filter-preview-item .fp-label {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(0,0,0,0.65);
+    color: #fff;
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    padding: 3px 4px;
+    letter-spacing: 0.05em;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  /* Logo presets */
+  .logo-presets-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .logo-preset-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1;
+  }
+  .logo-preset-btn:hover {
+    border-color: var(--accent);
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(0,204,102,0.2);
+  }
+  .logo-preset-btn.active {
+    border-color: var(--accent);
+    box-shadow: 0 0 12px rgba(0,204,102,0.4);
+  }
+  .logo-preset-btn img {
+    max-width: 100%;
+    max-height: 40px;
+    object-fit: contain;
+  }
+
+  .transform-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-bottom: 4px;
+  }
+  .transform-btn {
+    padding: 10px 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    line-height: 1.4;
+  }
+  .transform-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(0,204,102,0.06);
   }
 </style>
 </head>
@@ -678,19 +883,115 @@
       </div>
     </div>
 
+    <div class="field">
+      <label>Hotové logá pre QR</label>
+      <div class="logo-presets-grid">
+        <button class="logo-preset-btn" onclick="applyLogoPreset(this, 'https://cdn-icons-png.flaticon.com/512/0/747.png')" title="Instagram">
+          <img src="https://cdn-icons-png.flaticon.com/512/0/747.png" alt="Instagram">
+        </button>
+        <button class="logo-preset-btn" onclick="applyLogoPreset(this, 'https://cdn-icons-png.flaticon.com/512/1384/1384060.png')" title="YouTube">
+          <img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" alt="YouTube">
+        </button>
+        <button class="logo-preset-btn" onclick="applyLogoPreset(this, 'https://cdn-icons-png.flaticon.com/512/733/733547.png')" title="Facebook">
+          <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook">
+        </button>
+        <button class="logo-preset-btn" onclick="applyLogoPreset(this, 'https://cdn-icons-png.flaticon.com/512/2111/2111463.png')" title="WhatsApp">
+          <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="WhatsApp">
+        </button>
+        <button class="logo-preset-btn" onclick="applyLogoPreset(this, 'https://cdn-icons-png.flaticon.com/512/3670/3670147.png')" title="TikTok">
+          <img src="https://cdn-icons-png.flaticon.com/512/3670/3670147.png" alt="TikTok">
+        </button>
+        <button class="logo-preset-btn" onclick="applyLogoPreset(this, 'https://cdn-icons-png.flaticon.com/512/733/733579.png')" title="Twitter/X">
+          <img src="https://cdn-icons-png.flaticon.com/512/733/733579.png" alt="Twitter">
+        </button>
+      </div>
+      <button onclick="resetLogo()" style="width:100%; margin-top:8px; padding:9px; background:var(--surface); border:1px solid var(--border); border-radius:4px; color:var(--muted); font-family:'Space Mono',monospace; font-size:11px; cursor:pointer; transition:all 0.2s; letter-spacing:0.08em;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">✕ Odstrániť logo</button>
+      <small class="hint">Kliknite na logo → vloží sa do stredu QR kódu</small>
+    </div>
+
     <button class="btn-generate" onclick="generateQR()">⚡ Generovať QR kód</button>
+
+    <!-- Transform panel — visible only when photo tab is active -->
+    <div id="left-transform-panel" style="display:none;">
+      <div class="panel-title" style="margin-top:24px;">03 — Transformácie fotky</div>
+
+      <div class="field">
+        <label>Otočenie a zrkadlenie</label>
+        <div class="transform-row">
+          <button class="transform-btn" onclick="mirrorH()">↔<br><small>Zrkadlo H</small></button>
+          <button class="transform-btn" onclick="mirrorV()">↕<br><small>Zrkadlo V</small></button>
+          <button class="transform-btn" onclick="rotateLeft()">↺<br><small>-90°</small></button>
+          <button class="transform-btn" onclick="rotateRight()">↻<br><small>+90°</small></button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>☀ Jas</label>
+        <div class="range-row">
+          <input type="range" id="t-brightness" min="50" max="200" value="100" oninput="updateTransform(); document.getElementById('t-brightness-val').textContent = this.value + '%'">
+          <span class="range-val" id="t-brightness-val">100%</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>◑ Kontrast</label>
+        <div class="range-row">
+          <input type="range" id="t-contrast" min="50" max="200" value="100" oninput="updateTransform(); document.getElementById('t-contrast-val').textContent = this.value + '%'">
+          <span class="range-val" id="t-contrast-val">100%</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>🎨 Sýtosť</label>
+        <div class="range-row">
+          <input type="range" id="t-saturate" min="0" max="300" value="100" oninput="updateTransform(); document.getElementById('t-saturate-val').textContent = this.value + '%'">
+          <span class="range-val" id="t-saturate-val">100%</span>
+        </div>
+      </div>
+
+      <button class="btn-generate" style="background: var(--surface); color: var(--muted); border: 1px solid var(--border); margin-top:0;" onclick="resetTransform()">✕ Reset transformácií</button>
+    </div>
   </div>
 
   <!-- RIGHT: Output -->
   <div class="panel output-panel">
-    <!-- Tabs -->
+
+    <!-- Guide / Filter preview — only in photo tab -->
+    <div id="right-top-area" style="display:none; margin-bottom:12px;">
+      <div id="photo-guide">
+        <div class="guide-steps">
+          <div class="guide-step">
+            <span class="guide-num">1</span>
+            <div><div class="guide-title">Vyber zdroj fotky</div><div class="guide-desc">URL odkaz alebo súbor z počítača</div></div>
+          </div>
+          <div class="guide-step">
+            <span class="guide-num">2</span>
+            <div><div class="guide-title">Zvol filter</div><div class="guide-desc">8 filtrov — Originál, Sépia, Neon a ďalšie</div></div>
+          </div>
+          <div class="guide-step">
+            <span class="guide-num">3</span>
+            <div><div class="guide-title">Transformuj</div><div class="guide-desc">Zrkadlenie, otočenie, jas, kontrast</div></div>
+          </div>
+          <div class="guide-step">
+            <span class="guide-num">4</span>
+            <div><div class="guide-title">Stiahni alebo QR</div><div class="guide-desc">Ulož foto s filtrom alebo naskenuj QR</div></div>
+          </div>
+        </div>
+      </div>
+      <div id="filter-preview-grid" style="display:none;">
+        <div class="panel-title" style="margin-top:0; margin-bottom:10px;">Náhľad filtrov</div>
+        <div class="filter-preview-wrap"></div>
+      </div>
+    </div>
+
+    <!-- Tabs — always on top -->
     <div class="tabs-row">
       <button class="tab-btn active" onclick="switchTab('qr')">📱 QR kód</button>
       <button class="tab-btn" onclick="switchTab('photo')">🖼 Foto + Filter</button>
     </div>
 
     <!-- TAB: QR output -->
-    <div id="tab-qr">
+    <div id="tab-qr" style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:280px;">
       <div id="qr-output">
         <div class="placeholder-box">
           <span class="ph-icon">⬛</span>
@@ -703,6 +1004,7 @@
 
     <!-- TAB: Photo + Filter -->
     <div id="tab-photo" style="display:none;">
+
       <div class="panel-title" style="margin-top:0;">Zdroj fotky</div>
 
       <!-- Source toggle -->
@@ -759,17 +1061,29 @@
             <img src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=200" alt="Les">
             <div class="gallery-label">Les</div>
           </div>
-          <div class="gallery-item" onclick="pickGallery(this, 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800')">
-            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200" alt="Portrét">
-            <div class="gallery-label">Portrét</div>
+          <div class="gallery-item" onclick="pickGallery(this, 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800')">
+            <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200" alt="Pláž">
+            <div class="gallery-label">Pláž</div>
           </div>
-          <div class="gallery-item" onclick="pickGallery(this, 'https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=800')">
-            <img src="https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=200" alt="Zviera">
-            <div class="gallery-label">Zviera</div>
+          <div class="gallery-item" onclick="pickGallery(this, 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=800')">
+            <img src="https://images.unsplash.com/photo-1552053831-71594a27632d?w=200" alt="Pes">
+            <div class="gallery-label">Pes</div>
           </div>
           <div class="gallery-item" onclick="pickGallery(this, 'https://images.unsplash.com/photo-1462275646964-a0e3386b89fa?w=800')">
             <img src="https://images.unsplash.com/photo-1462275646964-a0e3386b89fa?w=200" alt="Kvety">
             <div class="gallery-label">Kvety</div>
+          </div>
+          <div class="gallery-item" onclick="pickGallery(this, 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=800')">
+            <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=200" alt="Portrét">
+            <div class="gallery-label">Portrét</div>
+          </div>
+          <div class="gallery-item" onclick="pickGallery(this, 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800')">
+            <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?w=200" alt="Noc">
+            <div class="gallery-label">Noc</div>
+          </div>
+          <div class="gallery-item" id="my-photo-slot" onclick="pickGallery(this, 'YOUR_PHOTO_URL')" style="display:none;">
+            <img src="" alt="Moje foto">
+            <div class="gallery-label">Moje foto</div>
           </div>
         </div>
         <small class="hint">Zdroj: Unsplash.com — voľne dostupné fotografie</small>
@@ -777,7 +1091,9 @@
 
       <!-- Preview -->
       <div id="photo-preview-wrap" style="margin-top:16px; display:none;">
-        <img id="photo-preview-img" src="" alt="preview" style="width:100%; border-radius:6px; display:block;">
+        <div style="width:100%; overflow:hidden; border-radius:6px; display:flex; align-items:center; justify-content:center; background:var(--surface); min-height:200px;">
+          <img id="photo-preview-img" src="" alt="preview" style="max-width:100%; max-height:500px; display:block; transition: transform 0.3s; border-radius:4px;">
+        </div>
         <button class="btn-download" id="btn-download-photo" onclick="downloadFilteredPhoto()" style="display:block; margin-top:10px; width:100%;">⬇ Stiahnuť foto s filtrom</button>
         <small class="hint" id="download-hint" style="margin-top:6px;"></small>
       </div>
@@ -792,6 +1108,38 @@
 <div id="qr-hidden" style="position:absolute;left:-9999px;top:-9999px;"></div>
 
 <script>
+  // ---- Transforms ----
+  let flipX = 1, flipY = 1, rotation = 0;
+
+  function mirrorH() { flipX *= -1; applyTransformStyle(); }
+  function mirrorV() { flipY *= -1; applyTransformStyle(); }
+  function rotateLeft()  { rotation = (rotation - 90 + 360) % 360; applyTransformStyle(); }
+  function rotateRight() { rotation = (rotation + 90) % 360; applyTransformStyle(); }
+
+  function updateTransform() { applyTransformStyle(); }
+
+  function applyTransformStyle() {
+    const img = document.getElementById('photo-preview-img');
+    const b = document.getElementById('t-brightness').value;
+    const c = document.getElementById('t-contrast').value;
+    const s = document.getElementById('t-saturate').value;
+    img.style.transform = `rotate(${rotation}deg) scaleX(${flipX}) scaleY(${flipY})`;
+    // Combine with current CSS filter
+    const base = currentFilter === 'none' ? '' : currentFilter + ' ';
+    img.style.filter = `${base}brightness(${b}%) contrast(${c}%) saturate(${s}%)`;
+  }
+
+  function resetTransform() {
+    flipX = 1; flipY = 1; rotation = 0;
+    document.getElementById('t-brightness').value = 100;
+    document.getElementById('t-contrast').value   = 100;
+    document.getElementById('t-saturate').value   = 100;
+    document.getElementById('t-brightness-val').textContent = '100%';
+    document.getElementById('t-contrast-val').textContent   = '100%';
+    document.getElementById('t-saturate-val').textContent   = '100%';
+    applyTransformStyle();
+  }
+
   // ---- Gallery pick ----
   function pickGallery(el, url) {
     document.querySelectorAll('.gallery-item').forEach(i => i.classList.remove('active'));
@@ -815,9 +1163,14 @@
   // ---- Tabs ----
   function switchTab(tab) {
     document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (i===0) === (tab==='qr')));
-    document.getElementById('tab-qr').style.display    = tab === 'qr'    ? '' : 'none';
-    document.getElementById('tab-photo').style.display = tab === 'photo' ? '' : 'none';
+    document.getElementById('tab-qr').style.display         = tab === 'qr'    ? 'flex' : 'none';
+    document.getElementById('tab-photo').style.display      = tab === 'photo' ? ''     : 'none';
+    document.getElementById('right-top-area').style.display = tab === 'photo' ? ''     : 'none';
+    document.getElementById('left-transform-panel').style.display = tab === 'photo' ? '' : 'none';
   }
+
+  // Init
+  document.getElementById('right-top-area').style.display = 'none';
 
   // ---- Photo source toggle ----
   function switchSource(src) {
@@ -851,7 +1204,8 @@
     btn.classList.add('active');
     currentFilter = filter;
     const img = document.getElementById('photo-preview-img');
-    if (img.src) img.style.filter = filter;
+    if (img.src) img.style.filter = filter === 'none' ? '' : filter;
+    syncPreviewHighlight(filter);
   }
 
   // ---- Load photo ----
@@ -862,21 +1216,36 @@
     if (src) showPhotoPreview(src);
   }
 
+  const FILTERS = [
+    { name: 'Originál',     css: 'none' },
+    { name: 'Čiernobiely',  css: 'grayscale(100%)' },
+    { name: 'Sépia',        css: 'sepia(100%)' },
+    { name: 'Negatív',      css: 'invert(100%)' },
+    { name: 'Neon',         css: 'hue-rotate(180deg) saturate(2)' },
+    { name: 'Živý',         css: 'contrast(1.5) brightness(1.1) saturate(1.4)' },
+    { name: 'Blur',         css: 'blur(3px)' },
+    { name: 'Fade',         css: 'brightness(1.4) contrast(0.8) saturate(0.6)' },
+  ];
+
   function showPhotoPreview(src) {
     const wrap = document.getElementById('photo-preview-wrap');
     const img  = document.getElementById('photo-preview-img');
     const hint = document.getElementById('download-hint');
-    img.crossOrigin = 'anonymous'; // try CORS
+    img.crossOrigin = 'anonymous';
     img.src = src;
     img.style.filter = currentFilter;
     img.onload = () => {
       wrap.style.display = '';
-      // Check if we can draw to canvas (local file = yes, URL = maybe)
       const isLocal = src.startsWith('data:');
       hint.textContent = isLocal
         ? '✓ Súbor z počítača — stiahnutie s filtrom funguje'
         : '⚠ URL obrázok — stiahnutie závisí od CORS servera';
       hint.style.color = isLocal ? 'var(--accent)' : 'var(--muted)';
+
+      // Hide guide, show filter preview grid
+      document.getElementById('photo-guide').style.display = 'none';
+      buildFilterPreviewGrid(src);
+      document.getElementById('filter-preview-grid').style.display = '';
     };
     img.onerror = () => {
       wrap.style.display = '';
@@ -885,6 +1254,33 @@
     if (src.startsWith('http')) {
       document.getElementById('qr-text').value = src;
     }
+  }
+
+  function buildFilterPreviewGrid(src) {
+    const wrap = document.querySelector('.filter-preview-wrap');
+    wrap.innerHTML = '';
+    FILTERS.forEach(f => {
+      const item = document.createElement('div');
+      item.className = 'filter-preview-item' + (f.css === currentFilter ? ' active' : '');
+      item.dataset.filterCss = f.css;
+      const im = document.createElement('img');
+      im.src = src;
+      im.style.filter = f.css === 'none' ? '' : f.css;
+      im.crossOrigin = 'anonymous';
+      const label = document.createElement('div');
+      label.className = 'fp-label';
+      label.textContent = f.name;
+      item.appendChild(im);
+      item.appendChild(label);
+      wrap.appendChild(item);
+    });
+  }
+
+  // sync preview highlight when filter button clicked
+  function syncPreviewHighlight(filterCss) {
+    document.querySelectorAll('.filter-preview-item').forEach(item => {
+      item.classList.toggle('active', item.dataset.filterCss === filterCss);
+    });
   }
 
   // ---- Download filtered photo via Canvas ----
@@ -912,6 +1308,49 @@
       hint.textContent = '⚠ Stiahnutie zlyhalo — CORS obmedzenie. Nahrať súbor z počítača funguje vždy.';
       hint.style.color = '#ff3366';
     }
+  }
+
+  // ---- Logo presets ----
+  function applyLogoPreset(btn, url) {
+    document.querySelectorAll('.logo-preset-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const tempImg = new Image();
+    tempImg.crossOrigin = 'anonymous';
+    tempImg.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width  = tempImg.width  || 200;
+      canvas.height = tempImg.height || 200;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(tempImg, 0, 0);
+      try {
+        logoDataURL = canvas.toDataURL();
+      } catch(e) {
+        logoDataURL = url; // fallback
+      }
+      logoPreview.src = logoDataURL || url;
+      logoPreview.style.display = 'block';
+      dropzone.querySelector('.dropzone-icon').style.display = 'none';
+      document.getElementById('logo-size-field').style.display = 'block';
+    };
+    tempImg.onerror = () => {
+      // direct URL fallback
+      logoDataURL = url;
+      logoPreview.src = url;
+      logoPreview.style.display = 'block';
+      dropzone.querySelector('.dropzone-icon').style.display = 'none';
+      document.getElementById('logo-size-field').style.display = 'block';
+    };
+    tempImg.src = url;
+  }
+
+  function resetLogo() {
+    logoDataURL = null;
+    logoPreview.src = '';
+    logoPreview.style.display = 'none';
+    dropzone.querySelector('.dropzone-icon').style.display = 'block';
+    document.getElementById('logo-size-field').style.display = 'none';
+    document.querySelectorAll('.logo-preset-btn').forEach(b => b.classList.remove('active'));
+    logoInput.value = '';
   }
 
   // ---- Style presets ----
