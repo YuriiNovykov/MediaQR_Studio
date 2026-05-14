@@ -984,14 +984,13 @@
       </div>
     </div>
 
-    <!-- Tabs — always on top -->
-    <div class="tabs-row">
-      <button class="tab-btn active" onclick="switchTab('qr')">📱 QR kód</button>
-      <button class="tab-btn" onclick="switchTab('photo')">🖼 Foto + Filter</button>
-    </div>
-
+    <!-- Tabs — inside QR area, above placeholder -->
     <!-- TAB: QR output -->
-    <div id="tab-qr" style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:280px;">
+    <div id="tab-qr" style="display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; min-height:300px;">
+      <div class="tabs-row" style="width:100%; margin-bottom:20px;">
+        <button class="tab-btn active" onclick="switchTab('qr')">📱 QR kód</button>
+        <button class="tab-btn" onclick="switchTab('photo')">🖼 Foto + Filter</button>
+      </div>
       <div id="qr-output">
         <div class="placeholder-box">
           <span class="ph-icon">⬛</span>
@@ -1004,6 +1003,11 @@
 
     <!-- TAB: Photo + Filter -->
     <div id="tab-photo" style="display:none;">
+
+      <div class="tabs-row" style="margin-bottom:16px;">
+        <button class="tab-btn" onclick="switchTab('qr')">📱 QR kód</button>
+        <button class="tab-btn active" onclick="switchTab('photo')">🖼 Foto + Filter</button>
+      </div>
 
       <div class="panel-title" style="margin-top:0;">Zdroj fotky</div>
 
@@ -1091,13 +1095,24 @@
 
       <!-- Preview -->
       <div id="photo-preview-wrap" style="margin-top:16px; display:none;">
-        <div style="width:100%; overflow:hidden; border-radius:6px; display:flex; align-items:center; justify-content:center; background:var(--surface); min-height:200px;">
-          <img id="photo-preview-img" src="" alt="preview" style="max-width:100%; max-height:500px; display:block; transition: transform 0.3s; border-radius:4px;">
+        <div id="photo-preview-container" style="width:100%; border-radius:6px; display:flex; align-items:center; justify-content:center; background:var(--surface); overflow:hidden; min-height:200px;">
+          <img id="photo-preview-img" src="" alt="preview" style="display:block; transition: transform 0.3s; border-radius:4px; max-width:100%; max-height:400px;">
         </div>
         <button class="btn-download" id="btn-download-photo" onclick="downloadFilteredPhoto()" style="display:block; margin-top:10px; width:100%;">⬇ Stiahnuť foto s filtrom</button>
         <small class="hint" id="download-hint" style="margin-top:6px;"></small>
       </div>
       <div class="hint" style="margin-top:10px;">💡 QR kód v ľavom paneli naskenuje URL — otvorí originálnu fotku</div>
+    </div>
+  </div>
+</main>
+
+<!-- Modal for rotated photo -->
+<div id="photo-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9999; display:none; align-items:center; justify-content:center;" onclick="closeModal()">
+  <div style="position:relative; max-width:90vw; max-height:90vh; display:flex; align-items:center; justify-content:center;">
+    <img id="modal-img" src="" style="max-width:90vw; max-height:90vh; border-radius:8px; box-shadow:0 0 60px rgba(0,255,136,0.2);">
+    <button onclick="closeModal()" style="position:absolute; top:-16px; right:-16px; background:var(--accent); border:none; border-radius:50%; width:32px; height:32px; font-size:16px; cursor:pointer; font-weight:bold;">✕</button>
+  </div>
+</div>
     </div>
   </div>
 </main>
@@ -1120,13 +1135,60 @@
 
   function applyTransformStyle() {
     const img = document.getElementById('photo-preview-img');
+    const container = document.getElementById('photo-preview-container');
     const b = document.getElementById('t-brightness').value;
     const c = document.getElementById('t-contrast').value;
     const s = document.getElementById('t-saturate').value;
-    img.style.transform = `rotate(${rotation}deg) scaleX(${flipX}) scaleY(${flipY})`;
-    // Combine with current CSS filter
+
     const base = currentFilter === 'none' ? '' : currentFilter + ' ';
-    img.style.filter = `${base}brightness(${b}%) contrast(${c}%) saturate(${s}%)`;
+    const filterStr = `${base}brightness(${b}%) contrast(${c}%) saturate(${s}%)`;
+    img.style.filter = filterStr;
+    img.style.transform = `rotate(${rotation}deg) scaleX(${flipX}) scaleY(${flipY})`;
+
+    const is90 = rotation === 90 || rotation === 270;
+    if (is90) {
+      // Shrink to fit without clipping
+      const containerW = container.offsetWidth || 400;
+      img.style.maxWidth  = '60%';
+      img.style.maxHeight = '60%';
+      container.style.minHeight = containerW * 0.7 + 'px';
+      // Show expand button
+      let btn = document.getElementById('expand-btn');
+      if (!btn) {
+        btn = document.createElement('button');
+        btn.id = 'expand-btn';
+        btn.textContent = '⛶ Zobraziť v plnej veľkosti';
+        btn.style.cssText = 'width:100%; margin-top:8px; padding:9px; background:var(--surface); border:1px solid var(--accent); border-radius:4px; color:var(--accent); font-family:Space Mono,monospace; font-size:11px; cursor:pointer; letter-spacing:0.08em;';
+        btn.onclick = () => openModal();
+        container.parentNode.insertBefore(btn, container.nextSibling);
+      }
+    } else {
+      img.style.maxWidth  = '100%';
+      img.style.maxHeight = '400px';
+      container.style.minHeight = '';
+      const btn = document.getElementById('expand-btn');
+      if (btn) btn.remove();
+    }
+
+    // Sync modal
+    const mImg = document.getElementById('modal-img');
+    mImg.style.filter    = filterStr;
+    mImg.style.transform = `rotate(${rotation}deg) scaleX(${flipX}) scaleY(${flipY})`;
+    mImg.src = img.src;
+  }
+
+  function openModal() {
+    const modal = document.getElementById('photo-modal');
+    const mImg  = document.getElementById('modal-img');
+    const img   = document.getElementById('photo-preview-img');
+    mImg.src = img.src;
+    mImg.style.filter    = img.style.filter;
+    mImg.style.transform = img.style.transform;
+    modal.style.display  = 'flex';
+  }
+
+  function closeModal() {
+    document.getElementById('photo-modal').style.display = 'none';
   }
 
   function resetTransform() {
@@ -1162,14 +1224,17 @@
 
   // ---- Tabs ----
   function switchTab(tab) {
-    document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (i===0) === (tab==='qr')));
-    document.getElementById('tab-qr').style.display         = tab === 'qr'    ? 'flex' : 'none';
-    document.getElementById('tab-photo').style.display      = tab === 'photo' ? ''     : 'none';
-    document.getElementById('right-top-area').style.display = tab === 'photo' ? ''     : 'none';
+    // Update all tab buttons
+    document.querySelectorAll('.tab-btn').forEach(b => {
+      const isQR = b.textContent.includes('QR');
+      b.classList.toggle('active', (tab === 'qr') === isQR);
+    });
+    document.getElementById('tab-qr').style.display    = tab === 'qr'    ? 'flex' : 'none';
+    document.getElementById('tab-photo').style.display = tab === 'photo' ? ''     : 'none';
+    document.getElementById('right-top-area').style.display = tab === 'photo' ? '' : 'none';
     document.getElementById('left-transform-panel').style.display = tab === 'photo' ? '' : 'none';
   }
 
-  // Init
   document.getElementById('right-top-area').style.display = 'none';
 
   // ---- Photo source toggle ----
